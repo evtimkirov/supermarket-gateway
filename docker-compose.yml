@@ -1,0 +1,36 @@
+services:
+  market:
+    build:
+      context: market
+    ports:
+      - "8000:80"
+    volumes:
+      - ./market:/var/www
+      - vendor_data:/var/www/vendor
+    environment:
+      - APACHE_DOCUMENT_ROOT=/var/www/public
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=supermarket
+      - DB_USERNAME=market_user
+      - DB_PASSWORD=market_password
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    container_name: supermarket-gateway-mysql
+    restart: always
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_DATABASE: supermarket
+      MYSQL_USER: market_user
+      MYSQL_PASSWORD: market_password
+      MYSQL_ROOT_PASSWORD: market_password
+    volumes:
+      - dbdata:/var/lib/mysql
+
+volumes:
+  dbdata:
+  vendor_data:
