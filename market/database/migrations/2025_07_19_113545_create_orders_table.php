@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->tinyInteger('quantity')->default(1);
             $table->decimal('total')->default(0);
             $table->enum('status', ['created', 'completed', 'cancelled'])->default('created');
             $table->timestamps();
