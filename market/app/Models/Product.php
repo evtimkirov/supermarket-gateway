@@ -22,16 +22,6 @@ class Product extends Model
     ];
 
     /**
-     * Many-to-many relationship with orders
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function orders() : BelongsToMany
-    {
-        return $this->belongsToMany(Order::class)->withPivot('quantity');
-    }
-
-    /**
      * Relationship with promotion
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
@@ -39,5 +29,20 @@ class Product extends Model
     public function promotion() : HasOne
     {
         return $this->hasOne(Promotion::class);
+    }
+
+    /**
+     * Many-to-many relationship with orders
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function orders() : BelongsToMany
+    {
+        return $this
+            ->belongsToMany(Order::class)
+            ->withPivot([
+                'quantity',
+                'final_price',
+            ]);
     }
 }

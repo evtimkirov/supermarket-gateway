@@ -17,7 +17,15 @@ class OrderSeeder extends Seeder
         $orders = Order::factory()->count(3)->create();
 
         foreach ($orders as $order) {
-            $order->products()->attach($products);
+            foreach ($products as $product) {
+                $quantity = rand(1, 5);
+                $finalPrice = $quantity * $product->price;
+
+                $order->products()->attach($product->id, [
+                    'quantity' => $quantity,
+                    'final_price' => $finalPrice,
+                ]);
+            }
         }
     }
 }
