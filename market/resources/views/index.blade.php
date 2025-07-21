@@ -11,9 +11,9 @@
                 <tr>
                     <th>Product name</th>
                     <th>Price</th>
-                    <th>Quantity</th>
+                    <th width="100">Quantity</th>
                     <th>Promotion</th>
-                    <th>Final price</th>
+                    <th width="100">Final price</th>
                 </tr>
                 @foreach($products as $product)
                 <tr>
@@ -29,7 +29,9 @@
                         />
                     </td>
                     <td>3 for 130</td>
-                    <td>0</td>
+                    <td>
+                        <input type="text" name="product_bundle_price" value="0" disabled/>
+                    </td>
                 </tr>
                 @endforeach
                 <tr>
