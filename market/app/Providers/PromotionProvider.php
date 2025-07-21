@@ -16,8 +16,8 @@ class PromotionProvider extends ServiceProvider
             ->app
             ->bind(
                 BasePriceCalculatorService::class,
-                function ($app, $unitPrice) {
-                    return new BasePriceCalculatorService($unitPrice);
+                function ($app, array $params) {
+                    return new BasePriceCalculatorService($params['unitPrice']);
                 });
     }
 }

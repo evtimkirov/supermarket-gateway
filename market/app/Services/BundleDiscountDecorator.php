@@ -18,7 +18,7 @@ class BundleDiscountDecorator implements PriceCalculator
     public function __construct(
         protected PriceCalculator $calculator,
         protected int $bundlePrice,
-        protected int $bundleQuantity = 3
+        protected int $bundleQuantity
     ) {}
 
     /**
