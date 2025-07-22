@@ -2,17 +2,21 @@ $(document).ready(function () {
     /**
      * AJAX post request for getting the product price calculated with potential promotion
      */
-    $(document).on('keyup mouseup', '.quantity', function () {
+    $(document).on('click', '.quantity', function () {
         let currentElement = $(this),
             parentElement = $(this).closest('tr'),
-            totalPrice = 0;
+            totalPrice = 0,
+            selectedProducts = $('.selected-products'),
+            itemsPerType = parentElement.find('.selected-items');
+
+        itemsPerType.val(itemsPerType.val() + currentElement.data('name'));
 
         axios
             .post(
                 '/api/products/calculate',
                 {
                     'product_id': parentElement.data('id'),
-                    'quantity': currentElement.val(),
+                    'sku_string': itemsPerType.val(),
                 },
                 {
                     headers: {
@@ -30,6 +34,7 @@ $(document).ready(function () {
                 });
 
                 $('.total-price').text(totalPrice);
+                selectedProducts.text(selectedProducts.text() + currentElement.data('name'));
             })
             .catch(function (error) {
                 alert('Something went wrong.');

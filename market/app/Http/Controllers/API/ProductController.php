@@ -25,11 +25,13 @@ class ProductController extends Controller
      */
     public function calculate(ProductCalculationRequest $request)
     {
+        $quantity = array_count_values(str_split($request->input('sku_string')));
+
         return response()
             ->json([
                 'total_price' => $this->getProductTotalPriceWithPromotion(
                     $request->input('product_id'),
-                    $request->input('quantity')
+                    reset($quantity)
                 )
             ]);
     }

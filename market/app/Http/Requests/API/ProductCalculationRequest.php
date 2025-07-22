@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\API;
 
+use App\Models\Product;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ProductCalculationRequest extends FormRequest
@@ -23,7 +24,15 @@ class ProductCalculationRequest extends FormRequest
     {
         return [
             'product_id' => 'required|integer|exists:products,id',
-            'quantity' => 'required|integer|min:0',
+            'sku_string' => ['required', 'regex:/^[A-Z]+$/', function ($attribute, $value, $fail) {
+                $skus = array_unique(str_split($value));
+                $validSkus = Product::whereIn('name', $skus)->pluck('name')->toArray();
+
+                $invalid = array_diff($skus, $validSkus);
+                if (!empty($invalid)) {
+                    $fail('Invalid SKU(s): ' . implode(', ', $invalid));
+                }
+            }],
         ];
     }
 }

@@ -11,30 +11,24 @@
                 <tr>
                     <th>Product name</th>
                     <th>Price</th>
-                    <th width="100">Quantity</th>
                     <th>Promotion</th>
+                    <th width="250">Selected items</th>
                     <th width="200">Final price</th>
+                    <th width="100">Action</th>
                 </tr>
                 @foreach($products as $product)
                 <tr data-id="{{ $product['id'] }}">
                     <td>{{ $product['name'] }}</td>
                     <td>{{ $product['price'] }}</td>
                     <td>
-                        <input
-                            type="number"
-                            name="quantity"
-                            min="0"
-                            max="20"
-                            value="0"
-                            class="form-control quantity"
-                        />
-                    </td>
-                    <td>
                         @if(!empty($product['promotion']))
                             {{ $product['promotion']['quantity'] }} for {{ $product['promotion']['total'] }}
                         @else
                             -
                         @endif
+                    </td>
+                    <td>
+                        <input type="text" class="form-control selected-items" disabled/>
                     </td>
                     <td>
                         <input
@@ -45,13 +39,31 @@
                             disabled
                         />
                     </td>
+                    <td>
+                        <button
+                            class="btn btn-sm btn-outline-default quantity"
+                            data-name="{{ $product['name'] }}"
+                        >
+                            Add
+                        </button>
+                    </td>
                 </tr>
                 @endforeach
                 <tr>
                     <td class="text-end" colspan="4">
-                        <strong>Total:</strong>
+                        <strong>Selected products:</strong>
                     </td>
-                    <td>
+                    <td colspan="2">
+                        <span class="selected-products">
+                            <!-- Selected products -->
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-end" colspan="4">
+                        <strong>Total price:</strong>
+                    </td>
+                    <td colspan="2">
                         <span class="total-price">0</span>
                         <button
                             id="checkout"
