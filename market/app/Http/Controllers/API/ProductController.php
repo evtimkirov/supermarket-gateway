@@ -59,7 +59,7 @@ class ProductController extends Controller
                 }
 
                 $order->update([
-                    'total_price' => $totalOrderPrice,
+                    'total' => $totalOrderPrice,
                     'status' => 'completed',
                 ]);
 
