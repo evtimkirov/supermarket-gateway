@@ -9,7 +9,6 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Services\BasePriceCalculatorService;
 use App\Services\BundleDiscountDecorator;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -45,7 +44,7 @@ class ProductController extends Controller
     public function placeOrder(PlaceOrderRequest $request)
     {
         try {
-            DB::transaction(function () use ($request) {
+            $response = DB::transaction(function () use ($request) {
                 $totalOrderPrice = 0;
                 $order = Order::create([
                     'total_price' => 0,
@@ -69,6 +68,8 @@ class ProductController extends Controller
 
                 return response()->json(['message' => 'The order has been placed.']);
             });
+
+            return $response;
         } catch (\Exception $e) {
             return response()->json(['error' => 'An error occurred while saving the order.'], 500);
         }
