@@ -7,7 +7,7 @@
     </div>
     <div class="row">
         <div class="col">
-            <table class="table table-striped">
+            <table id="products-table" class="table table-striped">
                 <tr>
                     <th>Product name</th>
                     <th>Price</th>
@@ -47,7 +47,12 @@
                     </td>
                     <td>
                         <span class="total-price">0</span>
-                        <button class="btn btn-sm btn-outline-success">Checkout</button>
+                        <button
+                            id="checkout"
+                            class="btn btn-sm btn-outline-success"
+                        >
+                            Checkout
+                        </button>
                     </td>
                 </tr>
             </table>

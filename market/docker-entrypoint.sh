@@ -29,4 +29,15 @@ done
 php artisan migrate:fresh --force
 php artisan db:seed --force
 
+# Clear old caches
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+php artisan cache:clear
+
+# Build caches
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
 exec apache2-foreground
