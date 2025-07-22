@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\PlaceOrderRequest;
+use App\Http\Requests\API\ProductCalculationRequest;
 use App\Models\Order;
 use App\Models\Product;
 use App\Services\BasePriceCalculatorService;
@@ -11,24 +12,27 @@ use App\Services\BundleDiscountDecorator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Product controller for the API endpoints
+ */
 class ProductController extends Controller
 {
     /**
      * Handle API endpoint for calculation between the product price and the available promotion
      *
-     * @param Request $request
+     * @param ProductCalculationRequest $request
      * @return \Illuminate\Http\JsonResponse
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function calculate(Request $request)
+    public function calculate(ProductCalculationRequest $request)
     {
-        $productId = $request->input('product_id');
-        $quantity = $request->input('quantity');
-
         return response()
-            ->json(
-                ['total_price' => $this->getProductTotalPriceWithPromotion($productId, $quantity)]
-            );
+            ->json([
+                'total_price' => $this->getProductTotalPriceWithPromotion(
+                    $request->input('product_id'),
+                    $request->input('quantity')
+                )
+            ]);
     }
 
     /**
