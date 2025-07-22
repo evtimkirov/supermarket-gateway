@@ -37,6 +37,14 @@ class Order extends Model
             ->withTimestamps();
     }
 
+    /**
+     * Create an order with all the selected products
+     *
+     * @param $totalPricePerItem
+     * @param $item
+     * @param $order
+     * @return mixed
+     */
     public static function createOrderWithProducts($totalPricePerItem, $item, $order)
     {
         $product = Product::find($item['product_id']);
