@@ -41,20 +41,19 @@ class Order extends Model
      * Create an order with all the selected products
      *
      * @param $totalPricePerItem
-     * @param $item
+     * @param $product
      * @param $order
+     * @param $quantity
      * @return mixed
      */
-    public static function createOrderWithProducts($totalPricePerItem, $item, $order)
+    public static function createOrderWithProducts($totalPricePerItem, $product, $order, $quantity)
     {
-        $product = Product::find($item['product_id']);
-
         $order
             ->products()
             ->attach(
                 $product->id,
                 [
-                    'quantity' => $item['quantity'],
+                    'quantity' => $quantity,
                     'final_price' => $totalPricePerItem,
                 ]
             );

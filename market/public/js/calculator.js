@@ -46,26 +46,11 @@ $(document).ready(function () {
      */
     $(document).on('click', '#checkout', function () {
         if (confirm('Are you sure you want to place an order for these items?')) {
-            let products = [];
-
-            // Gets each row with the needed ids and quantities
-            $('#products-table tr').each(function () {
-                let productId = $(this).data('id'),
-                    quantity = $(this).find('.quantity').val();
-
-                if (productId && quantity > 0) {
-                    products.push({
-                        product_id: parseInt(productId),
-                        quantity: parseInt(quantity)
-                    });
-                }
-            });
-
             axios
                 .post(
                     '/api/products/place-order',
                     {
-                        'products': products,
+                        'sku_string': $('.selected-products').text(),
                     },
                     {
                         headers: {

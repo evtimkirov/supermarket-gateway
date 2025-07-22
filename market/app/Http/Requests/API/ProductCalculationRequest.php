@@ -23,7 +23,6 @@ class ProductCalculationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'product_id' => 'required|integer|exists:products,id',
             'sku_string' => ['required', 'regex:/^[A-Z]+$/', function ($attribute, $value, $fail) {
                 $skus = array_unique(str_split($value));
                 $validSkus = Product::whereIn('name', $skus)->pluck('name')->toArray();

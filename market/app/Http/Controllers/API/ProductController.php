@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Services\BasePriceCalculatorService;
 use App\Services\BundleDiscountDecorator;
+use App\Services\OrderService;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -25,13 +26,15 @@ class ProductController extends Controller
      */
     public function calculate(ProductCalculationRequest $request)
     {
-        $quantity = array_count_values(str_split($request->input('sku_string')));
+        $items = array_count_values(str_split($request->input('sku_string')));
+        $itemName = array_key_first($items);
+        $itemCount = $items[$itemName];
 
         return response()
             ->json([
-                'total_price' => $this->getProductTotalPriceWithPromotion(
-                    $request->input('product_id'),
-                    reset($quantity)
+                'total_price' => OrderService::getProductTotalPriceWithPromotion(
+                    Product::whereName($itemName)->first(),
+                    $itemCount
                 )
             ]);
     }
@@ -40,76 +43,16 @@ class ProductController extends Controller
      * Place an order with the selected products and quantities
      *
      * @param PlaceOrderRequest $request
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @return \Illuminate\Http\JsonResponse|mixed
      */
     public function placeOrder(PlaceOrderRequest $request)
     {
         try {
-            $response = DB::transaction(function () use ($request) {
-                $totalOrderPrice = 0;
-                $order = Order::create([
-                    'total_price' => 0,
-                ]);
-
-                foreach ($request->input('products') as $item) {
-                    $totalPricePerItem = $this->getProductTotalPriceWithPromotion(
-                        $item['product_id'],
-                        $item['quantity']
-                    );
-
-                    Order::createOrderWithProducts($totalPricePerItem, $item, $order);
-
-                    $totalOrderPrice += $totalPricePerItem;
-                }
-
-                $order->update([
-                    'total' => $totalOrderPrice,
-                    'status' => 'completed',
-                ]);
-
-                return response()->json(['message' => 'The order has been placed.']);
-            });
-
-            return $response;
+            return OrderService::createOrderWithProducts($request->input('sku_string'));
         } catch (\Exception $e) {
-            return response()->json(['error' => 'An error occurred while saving the order.'], 500);
+            return response()->json([
+                'error' => 'An error occurred while saving the order.'
+            ], 500);
         }
-    }
-
-    /**
-     * Gets the product total price calculated with the current promotion
-     *
-     * @param $productId
-     * @param $quantity
-     * @return int
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
-     */
-    private function getProductTotalPriceWithPromotion($productId, $quantity)
-    {
-        $product = Product::findOrFail($productId);
-        $promotion = $product->promotion()->first();
-
-        if ($promotion) {
-            $productBundlePriceService = app()->make(
-                BundleDiscountDecorator::class,
-                [
-                    'calculator' => new BasePriceCalculatorService($product->price),
-                    'bundlePrice' => $promotion->total,
-                    'bundleQuantity' => $promotion->quantity,
-                ]
-            );
-
-            $totalPrice = $productBundlePriceService->calculate($quantity);
-        } else {
-            $dd = app()
-                ->make(
-                    BasePriceCalculatorService::class,
-                    ['unitPrice' => $product->price]
-                );
-            $totalPrice = $dd->calculate($quantity);
-        }
-
-        return $totalPrice;
     }
 }

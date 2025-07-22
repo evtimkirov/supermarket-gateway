@@ -54,9 +54,7 @@
                         <strong>Selected products:</strong>
                     </td>
                     <td colspan="2">
-                        <span class="selected-products">
-                            <!-- Selected products -->
-                        </span>
+                        <span class="selected-products"></span>
                     </td>
                 </tr>
                 <tr>

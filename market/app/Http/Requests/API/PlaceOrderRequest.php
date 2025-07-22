@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\API;
 
+use App\Models\Product;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -25,9 +26,15 @@ class PlaceOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'products' => 'required|array|min:1',
-            'products.*.product_id' => 'required|integer|exists:products,id',
-            'products.*.quantity' => 'required|integer|min:1',
+            'sku_string' => ['required', 'regex:/^[A-Z]+$/', function ($attribute, $value, $fail) {
+                $skus = array_unique(str_split($value));
+                $validSkus = Product::whereIn('name', $skus)->pluck('name')->toArray();
+
+                $invalid = array_diff($skus, $validSkus);
+                if (!empty($invalid)) {
+                    $fail('Invalid SKU(s): ' . implode(', ', $invalid));
+                }
+            }],
         ];
     }
 }
