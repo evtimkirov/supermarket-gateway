@@ -13,24 +13,31 @@
                     <th>Price</th>
                     <th width="100">Quantity</th>
                     <th>Promotion</th>
-                    <th width="100">Final price</th>
+                    <th width="200">Final price</th>
                 </tr>
                 @foreach($products as $product)
-                <tr>
+                <tr data-id="{{ $product['id'] }}">
                     <td>{{ $product['name'] }}</td>
                     <td>{{ $product['price'] }}</td>
                     <td>
                         <input
                             type="number"
+                            name="quantity"
                             min="0"
                             max="20"
                             value="0"
-                            class="form-control"
+                            class="form-control quantity"
                         />
                     </td>
                     <td>3 for 130</td>
                     <td>
-                        <input type="text" name="product_bundle_price" value="0" disabled/>
+                        <input
+                            type="text"
+                            name="product_bundle_price"
+                            value="0"
+                            class="form-control"
+                            disabled
+                        />
                     </td>
                 </tr>
                 @endforeach
@@ -39,7 +46,7 @@
                         <strong>Total:</strong>
                     </td>
                     <td>
-                        500
+                        <span class="total-price">0</span>
                         <button class="btn btn-sm btn-outline-success">Checkout</button>
                     </td>
                 </tr>
@@ -59,12 +66,11 @@
                     <th>Ordered date</th>
                     <th>Total</th>
                 </tr>
+                <tr>
+                    <td colspan="3">No available orders.</td>
+                </tr>
             </table>
         </div>
     </div>
-    <script>
-        $(document).ready(function () {
-            // JS here...
-        });
-    </script>
+    <script type="text/javascript" src="{{ asset('js/calculator.js') }}"></script>
 @endsection
