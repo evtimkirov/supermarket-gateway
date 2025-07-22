@@ -33,6 +33,24 @@ class Order extends Model
             ->withPivot([
                 'quantity',
                 'final_price',
-            ]);
+            ])
+            ->withTimestamps();
+    }
+
+    public static function createOrderWithProducts($totalPricePerItem, $item, $order)
+    {
+        $product = Product::find($item['product_id']);
+
+        $order
+            ->products()
+            ->attach(
+                $product->id,
+                [
+                    'quantity' => $item['quantity'],
+                    'final_price' => $totalPricePerItem,
+                ]
+            );
+
+        return $totalPricePerItem;
     }
 }

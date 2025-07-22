@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\API\PlaceOrderRequest;
+use App\Models\Order;
 use App\Models\Product;
 use App\Services\BasePriceCalculatorService;
 use App\Services\BundleDiscountDecorator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
@@ -26,6 +29,45 @@ class ProductController extends Controller
             ->json(
                 ['total_price' => $this->getProductTotalPriceWithPromotion($productId, $quantity)]
             );
+    }
+
+    /**
+     * Place an order with the selected products and quantities
+     *
+     * @param PlaceOrderRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
+    public function placeOrder(PlaceOrderRequest $request)
+    {
+        try {
+            DB::transaction(function () use ($request) {
+                $totalOrderPrice = 0;
+                $order = Order::create([
+                    'total_price' => 0,
+                ]);
+
+                foreach ($request->input('products') as $item) {
+                    $totalPricePerItem = $this->getProductTotalPriceWithPromotion(
+                        $item['product_id'],
+                        $item['quantity']
+                    );
+
+                    Order::createOrderWithProducts($totalPricePerItem, $item, $order);
+
+                    $totalOrderPrice += $totalPricePerItem;
+                }
+
+                $order->update([
+                    'total_price' => $totalOrderPrice,
+                    'status' => 'completed',
+                ]);
+
+                return response()->json(['message' => 'The order has been placed.']);
+            });
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An error occurred while saving the order.'], 500);
+        }
     }
 
     /**
