@@ -7,7 +7,9 @@ use Tests\TestCase;
 class OrderModelTest extends TestCase
 {
     /**
-     * A basic test example.
+     * Test the createOrderWithProduct method from the Order model
+     *
+     * @return void
      */
     public function testCreateOrderWithProduct(): void
     {
