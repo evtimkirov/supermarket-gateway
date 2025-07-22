@@ -29,7 +29,13 @@
                             class="form-control quantity"
                         />
                     </td>
-                    <td>3 for 130</td>
+                    <td>
+                        @if(!empty($product['promotion']))
+                            {{ $product['promotion']['quantity'] }} for {{ $product['promotion']['total'] }}
+                        @else
+                            -
+                        @endif
+                    </td>
                     <td>
                         <input
                             type="text"
@@ -67,13 +73,21 @@
         <div class="col">
             <table class="table table-striped">
                 <tr>
-                    <th>Order</th>
-                    <th>Ordered date</th>
+                    <th>Status</th>
                     <th>Total</th>
+                    <th>Ordered date</th>
                 </tr>
+                @forelse($orders as $order)
+                <tr>
+                    <td>{{ $order['status'] }}</td>
+                    <td>{{ $order['total'] }}</td>
+                    <td>{{ $order['created_at'] }}</td>
+                </tr>
+                @empty
                 <tr>
                     <td colspan="3">No available orders.</td>
                 </tr>
+                @endforelse
             </table>
         </div>
     </div>

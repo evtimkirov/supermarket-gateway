@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use App\Models\Product;
 
 class ProductController extends Controller
@@ -13,6 +14,12 @@ class ProductController extends Controller
      */
     public function index()
     {
-        return view('index', ['products' => Product::all()]);
+        return view(
+            'index',
+            [
+                'products' => Product::with('promotion')->get()->toArray(),
+                'orders' => Order::all()->sortDesc(),
+            ]
+        );
     }
 }
