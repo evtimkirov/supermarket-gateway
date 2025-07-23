@@ -5,12 +5,10 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\PlaceOrderRequest;
 use App\Http\Requests\API\ProductCalculationRequest;
-use App\Models\Order;
 use App\Models\Product;
-use App\Services\BasePriceCalculatorService;
-use App\Services\BundleDiscountDecorator;
 use App\Services\OrderService;
-use Illuminate\Support\Facades\DB;
+use App\Helpers\SkuParser;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Product controller for the API endpoints
@@ -21,18 +19,19 @@ class ProductController extends Controller
      * Handle API endpoint for calculation between the product price and the available promotion
      *
      * @param ProductCalculationRequest $request
+     * @param OrderService $orderService
      * @return \Illuminate\Http\JsonResponse
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function calculate(ProductCalculationRequest $request)
+    public function calculate(ProductCalculationRequest $request, OrderService $orderService)
     {
-        $items = array_count_values(str_split($request->input('sku_string')));
+        $items = SkuParser::parse($request->input('sku_string'));
         $itemName = array_key_first($items);
         $itemCount = $items[$itemName];
 
         return response()
             ->json([
-                'total_price' => OrderService::getProductTotalPriceWithPromotion(
+                'total_price' => $orderService->getProductTotalPriceWithPromotion(
                     Product::whereName($itemName)->first(),
                     $itemCount
                 )
@@ -43,13 +42,18 @@ class ProductController extends Controller
      * Place an order with the selected products and quantities
      *
      * @param PlaceOrderRequest $request
-     * @return \Illuminate\Http\JsonResponse|mixed
+     * @param OrderService $orderService
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function placeOrder(PlaceOrderRequest $request)
+    public function placeOrder(PlaceOrderRequest $request, OrderService $orderService)
     {
         try {
-            return OrderService::createOrderWithProducts($request->input('sku_string'));
+            $orderService->createOrderWithProducts($request->input('sku_string'));
+
+            return response()->json(['message' => 'The order has been placed.']);
         } catch (\Exception $e) {
+            Log::error('Order failed', ['exception' => $e]);
+
             return response()->json([
                 'error' => 'An error occurred while saving the order.'
             ], 500);

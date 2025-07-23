@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
+use App\Helpers\SkuParser;
 
 /**
  * The service responsibilities are for help the
@@ -17,19 +18,19 @@ class OrderService
      * Create an order with all the selected items and applied the promotions
      *
      * @param $skuString
-     * @return mixed
+     * @return void
      */
-    public static function createOrderWithProducts($skuString)
+    public function createOrderWithProducts($skuString)
     {
-        return DB::transaction(function () use ($skuString) {
+        DB::transaction(function () use ($skuString) {
             $totalOrderPrice = 0;
             $order = Order::create(['total_price' => 0]);
 
-            $items = array_count_values(str_split($skuString));
+            $items = SkuParser::parse($skuString);
             foreach ($items as $name => $quantity) {
                 $product = Product::whereName($name)->first();
 
-                $totalPricePerItem = self::getProductTotalPriceWithPromotion(
+                $totalPricePerItem = $this->getProductTotalPriceWithPromotion(
                     $product,
                     $quantity
                 );
@@ -48,8 +49,6 @@ class OrderService
                 'total' => $totalOrderPrice,
                 'status' => 'completed',
             ]);
-
-            return response()->json(['message' => 'The order has been placed.']);
         });
     }
 
@@ -61,7 +60,7 @@ class OrderService
      * @return int
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public static function getProductTotalPriceWithPromotion($product, $quantity)
+    public function getProductTotalPriceWithPromotion($product, $quantity)
     {
         $promotion = $product->promotion()->first();
 
@@ -77,12 +76,13 @@ class OrderService
 
             $totalPrice = $productBundlePriceService->calculate($quantity);
         } else {
-            $dd = app()
+            $calculatedBasePrice = app()
                 ->make(
                     BasePriceCalculatorService::class,
                     ['unitPrice' => $product->price]
                 );
-            $totalPrice = $dd->calculate($quantity);
+
+            $totalPrice = $calculatedBasePrice->calculate($quantity);
         }
 
         return $totalPrice;
