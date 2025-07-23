@@ -24,7 +24,10 @@ class OrderService
     {
         DB::transaction(function () use ($skuString) {
             $totalOrderPrice = 0;
-            $order = Order::create(['total_price' => 0]);
+            $order = Order::create([
+                'total_price' => 0,
+                'sku_string' => $skuString,
+            ]);
 
             $items = SkuParser::parse($skuString);
             foreach ($items as $name => $quantity) {

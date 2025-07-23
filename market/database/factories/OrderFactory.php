@@ -18,6 +18,7 @@ class OrderFactory extends Factory
     {
         return [
             'total' => $this->faker->numberBetween(1, 1000),
+            'sku_string' => $this->faker->randomElement(['ABDAA', 'AAABBBCCC', 'ABCCDAA', 'CDCABDAA']),
             'status' => $this->faker->randomElement(['created', 'completed', 'cancelled']),
         ];
     }

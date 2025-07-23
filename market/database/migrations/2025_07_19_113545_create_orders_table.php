@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->decimal('total')->default(0);
+            $table->string('sku_string');
             $table->enum('status', ['created', 'completed', 'cancelled'])->default('created');
             $table->timestamps();
         });

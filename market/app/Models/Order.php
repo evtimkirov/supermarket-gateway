@@ -18,6 +18,7 @@ class Order extends Model
     protected $fillable = [
         'quantity',
         'total',
+        'sku_string',
         'status',
     ];
 

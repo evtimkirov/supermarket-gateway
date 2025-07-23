@@ -83,14 +83,16 @@
         <div class="col">
             <table class="table table-striped">
                 <tr>
-                    <th>Status</th>
+                    <th>Products</th>
                     <th>Total</th>
+                    <th>Status</th>
                     <th>Ordered date</th>
                 </tr>
                 @forelse($orders as $order)
                 <tr>
-                    <td>{{ $order['status'] }}</td>
+                    <td>{{ $order['sku_string'] }}</td>
                     <td>{{ $order['total'] }}</td>
+                    <td>{{ $order['status'] }}</td>
                     <td>{{ $order['created_at'] }}</td>
                 </tr>
                 @empty
