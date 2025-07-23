@@ -13,17 +13,16 @@ class OrderModelTest extends TestCase
      */
     public function testCreateOrderWithProduct(): void
     {
-        $product = Product::factory()->create();
+        $product = Product::factory()->create()->first();
         $order = Order::factory()->create();
         $price = rand(10, 100);
+        $quantity = rand(1, 5);
 
         $totalPricePerItem = Order::createOrderWithProducts(
             $price,
-            [
-                'product_id' => $product->id,
-                'quantity' => rand(1, 5),
-            ],
-            $order
+            $product,
+            $order,
+            $quantity
         );
 
         $this->assertEquals($price, $totalPricePerItem);

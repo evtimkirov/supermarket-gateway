@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\Order;
+use App\Models\Promotion;
 use Tests\TestCase;
 use App\Models\Product;
 
@@ -39,12 +41,11 @@ class ProductApiTest extends TestCase
 
         $response
             ->assertStatus(422)
-            ->assertJsonValidationErrors(['product_id', 'quantity']);
+            ->assertJsonValidationErrors(['sku_string']);
 
         $errors = $response->json('errors');
 
-        $this->assertEquals('The product id field is required.', $errors['product_id'][0]);
-        $this->assertEquals('The quantity field is required.', $errors['quantity'][0]);
+        $this->assertEquals('The sku string field is required.', $errors['sku_string'][0]);
     }
 
     /**
@@ -54,26 +55,12 @@ class ProductApiTest extends TestCase
      */
     public function testProductCalculation(): void
     {
-        $randomNumber = rand(1, 5);
-        $discount = rand(10, 30);
-        $product = Product::create([
-            'name' => 'A',
-            'price' => '50',
-        ]);
-
-        $totalPrice = ($product->price * $randomNumber) - $discount;
-        $product
-            ->promotion()
-            ->create([
-                'quantity' => $randomNumber,
-                'total' => $totalPrice,
-            ]);
+        $product = Product::whereName(fake()->randomElement(['A', 'B']))->first();
 
         $response = $this->postJson(
             '/api/products/calculate',
             [
-                'product_id' => $product->id,
-                'quantity' => $randomNumber
+                'sku_string' => str_repeat($product->name, $product->promotion->quantity),
             ],
             $this->getHeaders()
         );
@@ -81,7 +68,7 @@ class ProductApiTest extends TestCase
         $response
             ->assertStatus(200)
             ->assertJson([
-                'total_price' => $totalPrice,
+                'total_price' => $product->promotion->total,
             ]);
     }
 
@@ -101,16 +88,16 @@ class ProductApiTest extends TestCase
 
         $response
             ->assertStatus(422)
-            ->assertJsonValidationErrors(['products']);
+            ->assertJsonValidationErrors(['sku_string']);
 
-        $errors = $response->json('errors')['products'];
-        $this->assertEquals('The products field is required.', $errors[0]);
+        $errors = $response->json('errors')['sku_string'];
+        $this->assertEquals('The sku string field is required.', $errors[0]);
 
         // Test with products empty array
         $response = $this->postJson(
             '/api/products/place-order',
             [
-                'products' => ['test']
+                'The sku string field is required.' => '',
             ],
             $this->getHeaders()
         );
@@ -121,20 +108,15 @@ class ProductApiTest extends TestCase
 
         $errors = $response->json('errors');
 
-        foreach ($errors as $key => $error) {
-            $this->assertEquals("The $key field is required.", $error[0]);
+        foreach ($errors as $error) {
+            $this->assertEquals('The sku string field is required.', $error[0]);
         }
 
         // Test with wrong types
         $response = $this->postJson(
             '/api/products/place-order',
             [
-                'products' => [
-                    [
-                        'product_id' => 'test',
-                        'quantity' => 'test',
-                    ],
-                ],
+                'sku_string' => fake()->numberBetween(1, 5),
             ],
             $this->getHeaders()
         );
@@ -144,31 +126,8 @@ class ProductApiTest extends TestCase
             ->assertJsonStructure(['message', 'errors']);
 
         $errors = $response->json('errors');
-        foreach ($errors as $key => $error) {
-            $this->assertEquals("The $key field must be an integer.", $error[0]);
-        }
-
-        // Test with wrong product ID
-        $response = $this->postJson(
-            '/api/products/place-order',
-            [
-                'products' => [
-                    [
-                        'product_id' => rand(1000, 5000),
-                        'quantity' => rand(1, 5),
-                    ],
-                ],
-            ],
-            $this->getHeaders()
-        );
-
-        $response
-            ->assertStatus(422)
-            ->assertJsonStructure(['message', 'errors']);
-
-        $errors = $response->json('errors');
-        foreach ($errors as $key => $error) {
-            $this->assertEquals("The selected $key is invalid.", $error[0]);
+        foreach ($errors as $error) {
+            $this->assertEquals('The sku string field format is invalid.', $error[0]);
         }
     }
 
@@ -185,16 +144,7 @@ class ProductApiTest extends TestCase
         $response = $this->postJson(
             '/api/products/place-order',
             [
-                'products' => [
-                    [
-                        'product_id' => $productId,
-                        'quantity' => rand(1, 5),
-                    ],
-                    [
-                        'product_id' => $secondProductId,
-                        'quantity' => rand(1, 5),
-                    ],
-                ],
+                'sku_string' => fake()->randomElement(['ABDAA', 'AAABBBCCC', 'ABCCDAA', 'CDCABDAA']),
             ],
             $this->getHeaders()
         );
