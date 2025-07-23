@@ -12,6 +12,10 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->count(3)->create();
+        User::factory()->create([
+            'name' => 'Administrator',
+            'email' => 'admin@siteground.com',
+            'password' => 'password',
+        ]);
     }
 }

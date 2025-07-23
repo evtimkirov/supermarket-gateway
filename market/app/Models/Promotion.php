@@ -18,4 +18,14 @@ class Promotion extends Model
         'quantity',
         'total',
     ];
+
+    /**
+     * Relationship with the Product model
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
 }

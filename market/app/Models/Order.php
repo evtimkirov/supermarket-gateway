@@ -11,6 +11,15 @@ class Order extends Model
     use HasFactory;
 
     /**
+     * Available order statuses
+     */
+    public const STATUSES = [
+        'created' => 'Created',
+        'cancelled' => 'Cancelled',
+        'completed' => 'Completed',
+    ];
+
+    /**
      * Columns
      *
      * @var string[]
