@@ -41,7 +41,7 @@
                     </td>
                     <td>
                         <button
-                            class="btn btn-sm btn-outline-default quantity"
+                            class="btn btn-sm btn-outline-info quantity"
                             data-name="{{ $product['name'] }}"
                         >
                             Add
